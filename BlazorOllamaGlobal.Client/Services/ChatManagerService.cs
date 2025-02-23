@@ -1,3 +1,4 @@
+using System.Text.Json;
 using BlazorOllamaGlobal.Client.Components;
 using BlazorOllamaGlobal.Client.Models.Chats;
 
@@ -52,9 +53,10 @@ public class ChatManagerService
             // Process tool calls if they exist.
             if (chatResponse.ResponseMessage.ToolCalls != null && chatResponse.ResponseMessage.ToolCalls.Any())
             {
+                ChatMessages[chatID].Add(new ChatMessage { Role = "assistant", Content = JsonSerializer.Serialize(chatResponse?.ResponseMessage?.ToolCalls) });
                 foreach (var toolCall in chatResponse.ResponseMessage.ToolCalls)
                 {
-                   var toolResult = await toolService.RunToolCalled(toolCall.Function.Name);
+                    var toolResult = await toolService.RunToolCalled(toolCall.Function.Name, toolCall.Function.Arguments);
                     ChatMessages[chatID].Add(new ChatMessage { Role = "system", Content = toolResult });
                     request.Messages = ChatMessages[chatID];
                     var chatAfterTool = await ollamaService.ChatAsync(request);

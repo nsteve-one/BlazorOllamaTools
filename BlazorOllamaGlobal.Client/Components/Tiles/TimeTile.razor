@@ -1,0 +1,9 @@
+<div class="tile-container">
+    <h1>Current Time</h1>
+    <p class="tile-tile-text">@(TimeToDisplay?.ToString("h:mm tt") ?? DateTime.Now.ToString("h:mm tt"))</p>
+</div>
+
+@code {
+    [Parameter]
+    public DateTime? TimeToDisplay { get; set; }
+}

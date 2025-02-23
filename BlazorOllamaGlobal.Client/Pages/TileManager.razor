@@ -4,12 +4,12 @@
 @inject TileService TileService
 
 
-<div class="tile-container">
+<div class="tile-manager-container">
     @foreach (var tile in Tiles)
     {
-        <Tile IsExiting="@tile.IsExiting" OnExitCompleted="@(() => OnTileExitCompleted(tile))">
+        <TileContainer IsExiting="@tile.IsExiting" OnExitCompleted="@(() => OnTileExitCompleted(tile))">
             @tile.Content
-        </Tile>
+        </TileContainer>
     }
 </div>
 

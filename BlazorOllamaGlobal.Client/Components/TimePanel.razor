@@ -1,9 +1,0 @@
-<div class="welcome-container">
-    <h1>Current Time</h1>
-    <p class="welcome-text">@(TimeToDisplay?.ToString("h:mm tt") ?? DateTime.Now.ToString("h:mm tt"))</p>
-</div>
-
-@code {
-    [Parameter]
-    public DateTime? TimeToDisplay { get; set; }
-}

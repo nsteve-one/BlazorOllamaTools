@@ -1,0 +1,28 @@
+@using BlazorOllamaGlobal.Client.Models.ToolModels
+<div class="note-tile-container">
+    <RadzenTextBox Placeholder="Note Title..." @bind-Value="currentNote.Title" Style="width: 100%; margin-bottom: 1rem;" />
+    <RadzenHtmlEditor @bind-Value="@currentNote.Content" Style="flex-grow: 1; width: 100%;">
+        <RadzenHtmlEditorBold/>
+        <RadzenHtmlEditorItalic/>
+        <RadzenHtmlEditorUnderline/>
+        <RadzenHtmlEditorStrikeThrough/>
+        <RadzenHtmlEditorAlignLeft/>
+        <RadzenHtmlEditorAlignCenter/>
+        <RadzenHtmlEditorAlignRight/>
+        <RadzenHtmlEditorJustify/>
+        <RadzenHtmlEditorIndent/>
+        <RadzenHtmlEditorOutdent/>
+        <RadzenHtmlEditorUnorderedList/>
+        <RadzenHtmlEditorOrderedList/>
+        <RadzenHtmlEditorLink/>
+        <RadzenHtmlEditorUnlink/>
+        <RadzenHtmlEditorFontName/>
+        <RadzenHtmlEditorFontSize/>
+        <RadzenHtmlEditorFormatBlock/>
+    </RadzenHtmlEditor>
+</div>
+
+@code {
+    [Parameter] 
+    public Note currentNote { get; set; } 
+}

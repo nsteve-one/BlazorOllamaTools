@@ -1,4 +1,4 @@
-.welcome-container {
+.tile-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 2rem;
@@ -7,13 +7,13 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.welcome-container h1 {
+.tile-container h1 {
     color: #1a1f36;
     font-size: 2.5rem;
     margin-bottom: 1rem;
 }
 
-.welcome-text {
+.tile-tile-text {
     color: #4f566b;
     font-size: 1.1rem;
     line-height: 1.6;

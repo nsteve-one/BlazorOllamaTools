@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace BlazorOllamaGlobal.Client.Models.Chats;
@@ -53,6 +54,9 @@ public class ToolFunction
     public string Name { get; set; }
     public string Description { get; set; }
     public object? Parameters { get; set; }
+    
+    [JsonPropertyName("arguments")]
+    public JsonObject Arguments { get; set; } = new JsonObject();
 }
 
 /// <summary>
@@ -62,7 +66,6 @@ public class ToolFunction
 public class ToolCall
 {
     public ToolFunction Function { get; set; }
-    public JsonElement Arguments { get; set; }
 }
 
 /// <summary>
