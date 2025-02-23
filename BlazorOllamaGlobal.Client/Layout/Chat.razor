@@ -1,0 +1,114 @@
+@using BlazorOllamaGlobal.Client.Components
+@using BlazorOllamaGlobal.Client.Models
+@using BlazorOllamaGlobal.Client.Models.Chats
+@using BlazorOllamaGlobal.Client.Services
+@inject IJSRuntime JS
+@inject ChatManagerService chatManagerService
+@inject TileService TileService
+
+<div class="chat-container">
+    <div class="chat-header">
+        <h2>Messages</h2>
+    </div>
+    
+    <div class="messages-container" @ref="messagesContainer">
+        @foreach (var message in messages)
+        {
+            <div class="@(message.IsFromUser ? "message-bubble sent" : "message-bubble received")">
+                <div class="message-text">@message.Content</div>
+            </div>
+        }
+    </div>
+
+    <div class="chat-input-container">
+        <textarea
+            @bind="currentMessage"
+            @bind:event="oninput"
+            @onkeydown="HandleKeyPress"
+            placeholder="Type a message..."
+            class="chat-input"
+            @ref="textAreaRef">
+        </textarea>
+        <button @onclick="SendMessage" class="send-button">
+            <span class="send-icon">➤</span>
+        </button>
+    </div>
+</div>
+
+@code {
+    private List<MessageContainer> messages = new List<MessageContainer>();
+    private string currentMessage = string.Empty;
+    private ElementReference textAreaRef;
+    private ElementReference messagesContainer;
+    
+    private string responseContent;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("autoResizeTextarea", textAreaRef);
+            TileService.RequestTile(builder =>
+            {
+                builder.OpenComponent(0, typeof(WelcomePanel));
+                builder.CloseComponent();
+            });
+        }
+        await ScrollToBottom();
+    }
+
+    private async Task SendMessage()
+    {
+        if (!string.IsNullOrWhiteSpace(currentMessage))
+        {
+            var messageHolder = currentMessage;
+            messages.Add(new MessageContainer() { Content = currentMessage, IsFromUser = true });
+            currentMessage = string.Empty;
+            await JS.InvokeVoidAsync("autoResizeTextarea", textAreaRef);
+            await JS.InvokeVoidAsync("resetCaret", textAreaRef);
+
+            var response = await chatManagerService.SendChat("New", messageHolder);
+
+            await RespondToMessage(response);
+
+            StateHasChanged();
+            await ScrollToBottom();
+        }
+    }
+
+    public async Task RespondToMessage(string responseText)
+    {
+        if(!string.IsNullOrEmpty(responseText))
+            messages.Add(new MessageContainer() { Content = responseText, IsFromUser = false });
+        
+        StateHasChanged();
+        await ScrollToBottom();
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            if (e.ShiftKey)
+            {
+                currentMessage += "\n";
+                await AutoResizeTextarea();
+            }
+            else
+            {
+                await SendMessage();
+            }
+        }
+    }
+
+
+    private async Task AutoResizeTextarea()
+    {
+        await JS.InvokeVoidAsync("autoResizeTextarea", textAreaRef);
+    }
+
+    private async Task ScrollToBottom()
+    {
+        await JS.InvokeVoidAsync("scrollToBottom", messagesContainer);
+    }
+}

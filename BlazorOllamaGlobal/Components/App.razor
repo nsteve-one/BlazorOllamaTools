@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <base href="/"/>
+    <link rel="stylesheet" href="bootstrap/bootstrap.min.css"/>
+    <link rel="stylesheet" href="app.css"/>
+    <link rel="stylesheet" href="BlazorOllamaGlobal.styles.css"/>
+    <link rel="icon" type="image/png" href="favicon.png"/>
+    <HeadOutlet @rendermode="InteractiveWebAssembly"/>
+    <RadzenTheme Theme="material" @rendermode="InteractiveWebAssembly" />
+</head>
+
+<body>
+<Routes @rendermode="InteractiveWebAssembly"/>
+<script src="_framework/blazor.web.js"></script>
+<script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Radzen.Colors).Assembly.GetName().Version)"></script>
+<script>
+    window.autoResizeTextarea = (element) => {
+        if (element) {
+            element.style.height = 'auto';
+            element.style.height = (element.scrollHeight) + 'px';
+        }
+    };
+
+    window.scrollToBottom = (element) => {
+        if (element) {
+            element.scrollTop = element.scrollHeight;
+        }
+    };
+
+    window.resetCaret = (textArea) => {
+        if (textArea) {
+            textArea.focus();
+            setTimeout(() => {
+                textArea.selectionStart = 0;
+                textArea.selectionEnd = 0;
+            }, 0);
+        }
+    };
+
+
+</script>
+</body>
+
+</html>

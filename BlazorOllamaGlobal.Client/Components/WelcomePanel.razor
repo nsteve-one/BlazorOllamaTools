@@ -1,0 +1,14 @@
+<div class="welcome-container">
+    <h1>Welcome to ChatApp</h1>
+    <p class="welcome-text">Start a conversation in the chat panel or browse through your previous messages.</p>
+    @if (!string.IsNullOrEmpty(SecondText))
+    {
+        <p class="welcome-text">@SecondText</p>
+    }
+</div>
+
+@code
+{
+    [Parameter]
+    public string SecondText { get; set; }
+}

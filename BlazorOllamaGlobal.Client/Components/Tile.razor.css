@@ -1,0 +1,37 @@
+/* Slide in from the bottom */
+@keyframes slideIn {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Slide out to the top */
+@keyframes slideOut {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+/* Apply the animations to your tile */
+.tile {
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+
+.tile.enter {
+    animation-name: slideIn;
+}
+
+.tile.exit {
+    animation-name: slideOut;
+}

@@ -1,0 +1,73 @@
+@page "/"
+@using BlazorOllamaGlobal.Client.Components
+@using BlazorOllamaGlobal.Client.Services
+@inject TileService TileService
+
+
+<div class="tile-container">
+    @foreach (var tile in Tiles)
+    {
+        <Tile IsExiting="@tile.IsExiting" OnExitCompleted="@(() => OnTileExitCompleted(tile))">
+            @tile.Content
+        </Tile>
+    }
+</div>
+
+@code {
+    // Model representing an individual tile.
+    public class TileModel
+    {
+        public RenderFragment Content { get; set; }
+        public bool IsExiting { get; set; }
+    }
+
+    List<TileModel> Tiles = new List<TileModel>();
+    // This variable will hold content for a new tile until the old one is gone.
+    private RenderFragment pendingTileContent;
+
+    protected override void OnInitialized()
+    {
+        // Subscribe to tile requests from the TileService.
+        TileService.OnTileRequested += OnTileRequested;
+    }
+
+    private void OnTileRequested(RenderFragment content)
+    {
+        if (Tiles.Any())
+        {
+            // Instead of removing immediately, mark the current tile for exit.
+            Tiles.First().IsExiting = true;
+            // Save the new tile's content for later.
+            pendingTileContent = content;
+            StateHasChanged();
+        }
+        else
+        {
+            // No tile exists, so add the new one immediately.
+            AddTile(content);
+        }
+    }
+
+    private void OnTileExitCompleted(TileModel tile)
+    {
+        // Remove the tile once its exit animation completes.
+        Tiles.Remove(tile);
+        StateHasChanged();
+
+        // If we have pending content, add a new tile.
+        if (pendingTileContent != null)
+        {
+            AddTile(pendingTileContent);
+            pendingTileContent = null;
+        }
+    }
+
+    private void AddTile(RenderFragment content)
+    {
+        Tiles.Add(new TileModel
+        {
+            Content = content
+        });
+        StateHasChanged();
+    }
+}

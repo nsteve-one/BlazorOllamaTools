@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorOllamaGlobal", "BlazorOllamaGlobal\BlazorOllamaGlobal.csproj", "{5AD2E208-6C87-4EA7-A8A6-5E0C7B83B0B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorOllamaGlobal.Client", "BlazorOllamaGlobal.Client\BlazorOllamaGlobal.Client.csproj", "{D4D6DB9A-F74E-4D53-BD10-356811D123D0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5AD2E208-6C87-4EA7-A8A6-5E0C7B83B0B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AD2E208-6C87-4EA7-A8A6-5E0C7B83B0B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AD2E208-6C87-4EA7-A8A6-5E0C7B83B0B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AD2E208-6C87-4EA7-A8A6-5E0C7B83B0B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4D6DB9A-F74E-4D53-BD10-356811D123D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4D6DB9A-F74E-4D53-BD10-356811D123D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4D6DB9A-F74E-4D53-BD10-356811D123D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4D6DB9A-F74E-4D53-BD10-356811D123D0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

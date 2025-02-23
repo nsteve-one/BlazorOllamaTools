@@ -1,0 +1,18 @@
+﻿@inherits LayoutComponentBase
+
+<div class="app-container">
+    <div class="main-content">
+        @Body
+    </div>
+    <div class="chat-sidebar">
+        <Chat />
+    </div>
+</div>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.Write("TEST");
+    }
+}
