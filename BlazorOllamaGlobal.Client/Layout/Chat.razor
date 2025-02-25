@@ -1,5 +1,6 @@
 @using BlazorOllamaGlobal.Client.Components.Tiles
 @using BlazorOllamaGlobal.Client.Models
+@using BlazorOllamaGlobal.Client.Models.Tiles
 @using BlazorOllamaGlobal.Client.Services
 @inject IJSRuntime JS
 @inject ChatManagerService chatManagerService
@@ -47,11 +48,7 @@
         if (firstRender)
         {
             await JS.InvokeVoidAsync("autoResizeTextarea", textAreaRef);
-            TileService.RequestTile(builder =>
-            {
-                builder.OpenComponent(0, typeof(WelcomeTile));
-                builder.CloseComponent();
-            });
+            TileService.RequestTile(new WelcomeTileModel());
         }
         await ScrollToBottom();
     }

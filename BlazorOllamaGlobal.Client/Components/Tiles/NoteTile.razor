@@ -1,4 +1,8 @@
 @using BlazorOllamaGlobal.Client.Models.ToolModels
+@using BlazorOllamaGlobal.Client.Services.Tiles
+
+@inject NoteService NoteService
+
 <div class="note-tile-container">
     <RadzenTextBox Placeholder="Note Title..." @bind-Value="currentNote.Title" Style="width: 100%; margin-bottom: 1rem;" />
     <RadzenHtmlEditor @bind-Value="@currentNote.Content" Style="flex-grow: 1; width: 100%;">
@@ -20,6 +24,9 @@
         <RadzenHtmlEditorFontSize/>
         <RadzenHtmlEditorFormatBlock/>
     </RadzenHtmlEditor>
+    <div style="display: flex; flex-direction: row; margin-top: 1rem;">
+        <RadzenButton Text="Save" ButtonStyle="ButtonStyle.Primary" Style="width: 100%;" Click="@(() => NoteService.SaveNote(currentNote))" />
+    </div>
 </div>
 
 @code {

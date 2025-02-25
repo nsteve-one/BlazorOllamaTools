@@ -1,14 +1,22 @@
+using BlazorOllamaGlobal.Client.Models.Tiles;
 using Microsoft.AspNetCore.Components;
 
 namespace BlazorOllamaGlobal.Client.Services;
 
 public class TileService
 {
-    public event Action<RenderFragment> OnTileRequested;
+    public List<ITileModel> ActiveTiles { get; set; }
 
-    public void RequestTile(RenderFragment content)
+    public TileService()
     {
-        OnTileRequested?.Invoke(content);
+        ActiveTiles = new List<ITileModel>();
+    }
+    
+    public event Action<ITileModel> OnTileRequested;
+
+    public void RequestTile(ITileModel tileModel)
+    {
+        OnTileRequested?.Invoke(tileModel);
     }
 }
 

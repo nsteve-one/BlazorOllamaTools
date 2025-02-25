@@ -1,11 +1,12 @@
 @page "/"
 @using BlazorOllamaGlobal.Client.Components
+@using BlazorOllamaGlobal.Client.Models.Tiles
 @using BlazorOllamaGlobal.Client.Services
 @inject TileService TileService
 
 
 <div class="tile-manager-container">
-    @foreach (var tile in Tiles)
+    @foreach (var tile in TileService.ActiveTiles)
     {
         <TileContainer IsExiting="@tile.IsExiting" OnExitCompleted="@(() => OnTileExitCompleted(tile))">
             @tile.Content
@@ -14,16 +15,9 @@
 </div>
 
 @code {
-    // Model representing an individual tile.
-    public class TileModel
-    {
-        public RenderFragment Content { get; set; }
-        public bool IsExiting { get; set; }
-    }
-
-    List<TileModel> Tiles = new List<TileModel>();
+    
     // This variable will hold content for a new tile until the old one is gone.
-    private RenderFragment pendingTileContent;
+    private ITileModel pendingTile;
 
     protected override void OnInitialized()
     {
@@ -31,43 +25,41 @@
         TileService.OnTileRequested += OnTileRequested;
     }
 
-    private void OnTileRequested(RenderFragment content)
+    private void OnTileRequested(ITileModel tileModel)
     {
-        if (Tiles.Any())
+        if (TileService.ActiveTiles.Any())
         {
             // Instead of removing immediately, mark the current tile for exit.
-            Tiles.First().IsExiting = true;
+            TileService.ActiveTiles.First().IsExiting = true;
             // Save the new tile's content for later.
-            pendingTileContent = content;
+            pendingTile = tileModel;
             StateHasChanged();
         }
         else
         {
             // No tile exists, so add the new one immediately.
-            AddTile(content);
+            AddTile(tileModel);
         }
     }
 
-    private void OnTileExitCompleted(TileModel tile)
+    private void OnTileExitCompleted(ITileModel tile)
     {
         // Remove the tile once its exit animation completes.
-        Tiles.Remove(tile);
+        TileService.ActiveTiles.Remove(tile);
         StateHasChanged();
 
         // If we have pending content, add a new tile.
-        if (pendingTileContent != null)
+        if (pendingTile != null)
         {
-            AddTile(pendingTileContent);
-            pendingTileContent = null;
+            AddTile(pendingTile);
+            pendingTile = null;
+            StateHasChanged();
         }
     }
 
-    private void AddTile(RenderFragment content)
+    private void AddTile(ITileModel tile)
     {
-        Tiles.Add(new TileModel
-        {
-            Content = content
-        });
+        TileService.ActiveTiles.Add(tile);
         StateHasChanged();
     }
 }

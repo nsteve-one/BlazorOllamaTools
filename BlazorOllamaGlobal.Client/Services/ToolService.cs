@@ -2,7 +2,9 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using BlazorOllamaGlobal.Client.Components.Tiles;
 using BlazorOllamaGlobal.Client.Models.Chats;
+using BlazorOllamaGlobal.Client.Models.Tiles;
 using BlazorOllamaGlobal.Client.Models.ToolModels;
+using BlazorOllamaGlobal.Client.Services.Tiles;
 
 namespace BlazorOllamaGlobal.Client.Services;
 
@@ -10,10 +12,11 @@ public class ToolService
 {
     
     public readonly TileService tileService;
-
-    public ToolService(TileService tileService)
+    public readonly NoteService noteService;
+    public ToolService(TileService tileService, NoteService noteService)
     {
         this.tileService = tileService;
+        this.noteService = noteService;
     }
     public async Task<string> RunToolCalled(string toolName, JsonObject args)
     {
@@ -22,12 +25,7 @@ public class ToolService
         {
             case "GetCurrentTime":
                 toolResult = GetCurrentTime();
-                tileService.RequestTile(builder =>
-                {
-                    builder.OpenComponent(0, typeof(TimeTile));
-                    builder.AddAttribute(1, "TimeToDisplay", DateTime.Parse(toolResult));
-                    builder.CloseComponent();
-                });
+                tileService.RequestTile(new TimeTileModel(toolResult));
                 break;
             case "CreateNewNote":
                 toolResult = "success";
@@ -36,13 +34,21 @@ public class ToolService
                 NewNote.Title = args["title"]?.GetValue<string>() ?? "";
                 NewNote.Content = args["content"]?.GetValue<string>() ?? "";
                 
-                
-                tileService.RequestTile(builder =>
+                tileService.RequestTile(new NoteTileModel(NewNote));
+                break;
+            case "SaveNote":
+                var note =
+                    (tileService.ActiveTiles.FirstOrDefault(x =>
+                        x.IsExiting is not true && x is NoteTileModel) as NoteTileModel)?.GetNote();
+                if (note is not null)
                 {
-                    builder.OpenComponent(0, typeof(NoteTile));
-                    builder.AddAttribute(1, "currentNote", NewNote);
-                    builder.CloseComponent();
-                });
+                    await noteService.SaveNote(note);
+                    toolResult = "Note saved successfully.";
+                }
+                else
+                {
+                    toolResult = "No note found to save.";
+                }
                 break;
             default:
                 toolResult = "Unknown tool";
@@ -60,7 +66,7 @@ public class ToolService
 
     public async Task<List<ToolDefinition>> GetToolDefinitions()
     {
-        return new List<ToolDefinition>
+        var toolDefinitions = new List<ToolDefinition>
         {
             new ToolDefinition
             {
@@ -76,7 +82,7 @@ public class ToolService
                 Function = new ToolFunction()
                 {
                     Name = "CreateNewNote",
-                    Description = "Displays a new note to the user with an optional title and content",
+                    Description = "Displays a new note to the user with an optional title and content. Do not add content unless explicitly requested by the user.",
                     Parameters = new
                     {
                         type = "object",
@@ -90,12 +96,16 @@ public class ToolService
                             Content = new
                             {
                                 type = "string",
-                                description = "The note content.",
+                                description = "The note content. Content should be in html format.",
                             }
                         }
                     }
                 }
             }
         };
+        
+        var activeTileTools = tileService.ActiveTiles.Where(x => x.IsExiting is not true).SelectMany(t => t.GetTileTools()).ToList();
+        toolDefinitions.AddRange(activeTileTools);
+        return toolDefinitions;
     }
 }

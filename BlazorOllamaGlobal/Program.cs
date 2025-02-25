@@ -1,5 +1,6 @@
 using BlazorOllamaGlobal.Client.Pages;
 using BlazorOllamaGlobal.Client.Services;
+using BlazorOllamaGlobal.Client.Services.Tiles;
 using BlazorOllamaGlobal.Components;
 using Radzen;
 
@@ -18,6 +19,7 @@ builder.Services.AddScoped<OllamaService>(sp =>
 builder.Services.AddScoped<ChatManagerService>();
 builder.Services.AddScoped<ToolService>();
 builder.Services.AddSingleton<TileService>();
+builder.Services.AddScoped<NoteService>();
 builder.Services.AddRadzenComponents();
 
 
