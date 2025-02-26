@@ -56,7 +56,7 @@ public class ToolService
         }
         
         
-        return $"Tool {toolName} was called. Tool result: {toolResult}. Always follow up with a short response to the user with the result of this call, as they cannot see this message.";
+        return $"Tool {toolName} was called. Tool result: {toolResult}.";
     }
     
     public string GetCurrentTime()

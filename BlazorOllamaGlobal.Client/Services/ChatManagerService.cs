@@ -58,6 +58,7 @@ public class ChatManagerService
                 {
                     var toolResult = await toolService.RunToolCalled(toolCall.Function.Name, toolCall.Function.Arguments);
                     ChatMessages[chatID].Add(new ChatMessage { Role = "system", Content = toolResult });
+                    ChatMessages[chatID].Add(new ChatMessage { Role = "system", Content = "Please tell the user what the result of the tool call was." });
                     request.Messages = ChatMessages[chatID];
                     var chatAfterTool = await ollamaService.ChatAsync(request);
                     ChatMessages[chatID].Add(new ChatMessage { Role = "assistant", Content = chatAfterTool.ResponseMessage.Content });
