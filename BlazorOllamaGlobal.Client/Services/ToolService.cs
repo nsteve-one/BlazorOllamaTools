@@ -20,43 +20,67 @@ public class ToolService
     }
     public async Task<string> RunToolCalled(string toolName, JsonObject args)
     {
-        string toolResult = string.Empty;
-        switch (toolName)
+        try
         {
-            case "GetCurrentTime":
-                toolResult = GetCurrentTime();
-                tileService.RequestTile(new TimeTileModel(toolResult));
-                break;
-            case "CreateNewNote":
-                toolResult = "success";
-                var NewNote = new Note() { Id = Guid.NewGuid() };
-                
-                NewNote.Title = args["title"]?.GetValue<string>() ?? "";
-                NewNote.Content = args["content"]?.GetValue<string>() ?? "";
-                
-                tileService.RequestTile(new NoteTileModel(NewNote));
-                break;
-            case "SaveNote":
-                var note =
-                    (tileService.ActiveTiles.FirstOrDefault(x =>
-                        x.IsExiting is not true && x is NoteTileModel) as NoteTileModel)?.GetNote();
-                if (note is not null)
-                {
-                    await noteService.SaveNote(note);
-                    toolResult = "Note saved successfully.";
-                }
-                else
-                {
-                    toolResult = "No note found to save.";
-                }
-                break;
-            default:
-                toolResult = "Unknown tool";
-                break;
+            string toolResult = string.Empty;
+            switch (toolName)
+            {
+                case "GetCurrentTime":
+                    toolResult = GetCurrentTime();
+                    tileService.RequestTile(new TimeTileModel(toolResult));
+                    break;
+                case "CreateNewNote":
+                    toolResult = "success";
+                    var NewNote = new Note() { Id = Guid.NewGuid() };
+                    
+                    NewNote.Title = args["title"]?.GetValue<string>() ?? "";
+                    NewNote.Content = args["content"]?.GetValue<string>() ?? "";
+                    
+                    tileService.RequestTile(new NoteTileModel(NewNote));
+                    break;
+                case "SaveNote":
+                    var note =
+                        (tileService.ActiveTiles.FirstOrDefault(x =>
+                            x.IsExiting is not true && x is NoteTileModel) as NoteTileModel)?.GetNote();
+                    if (note is not null)
+                    {
+                        await noteService.SaveNote(note);
+                        toolResult = "Note saved successfully.";
+                    }
+                    else
+                    {
+                        toolResult = "No note found to save.";
+                    }
+                    break;
+                case "EditCurrentNote":
+                    var noteTile = tileService.ActiveTiles.FirstOrDefault(x =>
+                        x.IsExiting is not true && x is NoteTileModel) as NoteTileModel;
+                    if (noteTile is not null)
+                    {
+                        var noteToEdit = noteTile.GetNote();
+                        noteToEdit.Title = args["title"]?.GetValue<string>() ?? noteToEdit.Title;
+                        noteToEdit.Content = args["content"]?.GetValue<string>() ?? noteToEdit.Content;
+                        toolResult = "Note edited successfully.";
+                        noteTile.HandleNoteSaved(noteToEdit);
+                    }
+                    else
+                    {
+                        toolResult = "No note found to edit.";
+                    }
+                    break;
+                default:
+                    toolResult = "Unknown tool";
+                    break;
+            }
+            
+            
+            return $"Tool {toolName} was called. Tool result: {toolResult}.";
         }
-        
-        
-        return $"Tool {toolName} was called. Tool result: {toolResult}.";
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
     
     public string GetCurrentTime()

@@ -41,4 +41,9 @@
         currentNote = await NoteService.SaveNote(currentNote);
         await OnNoteSaved.InvokeAsync(currentNote);
     }
+
+    public async Task StateChanged()
+    {
+        StateHasChanged();
+    }
 }
