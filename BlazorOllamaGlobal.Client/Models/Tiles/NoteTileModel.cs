@@ -15,12 +15,18 @@ public class NoteTileModel : ITileModel
         {
             builder.OpenComponent(0, typeof(NoteTile));
             builder.AddAttribute(1, "currentNote", Note);
+            builder.AddAttribute(2, "OnNoteSaved", EventCallback.Factory.Create<Note>(this, HandleNoteSaved));
             builder.CloseComponent();
         };
     }
     public Note GetNote()
     {
         return Note;
+    }
+    
+    private void HandleNoteSaved(Note updatedNote)
+    {
+        Note = updatedNote;
     }
     public RenderFragment Content { get; set; }
     public bool IsExiting { get; set; }

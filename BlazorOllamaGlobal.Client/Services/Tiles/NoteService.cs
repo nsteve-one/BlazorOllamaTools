@@ -1,13 +1,31 @@
 using BlazorOllamaGlobal.Client.Models.ToolModels;
+using BlazorOllamaGlobal.Client.Services.DataAccess;
 
 namespace BlazorOllamaGlobal.Client.Services.Tiles;
 
 public class NoteService
 {
-    public async Task SaveNote(Note note)
+    public readonly DapperClient _dapperClient;
+    public NoteService(DapperClient dapperClient)
     {
-        // Save note to database
-        // For now, just print it to the console
-        Console.WriteLine($"Note saved: {note.Title} - {note.Content}");
+        _dapperClient = dapperClient;
+    }
+
+    public async Task<Note> SaveNote(Note note)
+    {
+        try
+        {
+            var resultid = await _dapperClient.UpsertAsync(note, "Note", "Id");
+            var resultString = resultid.ToString();
+            note.Id = Guid.Parse(resultString);
+            return note;
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
     }
 }

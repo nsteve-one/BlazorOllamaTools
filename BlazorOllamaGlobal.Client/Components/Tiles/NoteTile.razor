@@ -25,11 +25,20 @@
         <RadzenHtmlEditorFormatBlock/>
     </RadzenHtmlEditor>
     <div style="display: flex; flex-direction: row; margin-top: 1rem;">
-        <RadzenButton Text="Save" ButtonStyle="ButtonStyle.Primary" Style="width: 100%;" Click="@(() => NoteService.SaveNote(currentNote))" />
+        <RadzenButton Text="Save" ButtonStyle="ButtonStyle.Primary" Style="width: 100%;" Click="SaveNote" />
     </div>
 </div>
 
 @code {
     [Parameter] 
     public Note currentNote { get; set; } 
+    
+    [Parameter]
+    public EventCallback<Note> OnNoteSaved { get; set; }
+    
+    public async Task SaveNote()
+    {
+        currentNote = await NoteService.SaveNote(currentNote);
+        await OnNoteSaved.InvokeAsync(currentNote);
+    }
 }
