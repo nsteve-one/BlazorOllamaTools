@@ -69,6 +69,98 @@ public class DapperService : IDapperService
             return new List<T>();
         }
     }
+    
+    public async Task<IEnumerable<object>> QueryAsyncDynamic(string query, object parameters, Type entityType)
+    {
+        // Convert JsonElement parameters to a proper dictionary
+        var dapperParameters = ConvertToDapperParameters(parameters);
+        
+        // Get the generic method definition
+        var genericMethodDefinition = this.GetType().GetMethods()
+            .Where(m => m.Name == nameof(QueryAsync) && m.IsGenericMethod)
+            .Where(m => {
+                var methodParams = m.GetParameters();
+                return methodParams.Length == 2 &&
+                       methodParams[0].ParameterType == typeof(string);
+            })
+            .FirstOrDefault();
+
+        if (genericMethodDefinition == null)
+        {
+            throw new InvalidOperationException("Could not find the appropriate QueryAsync method");
+        }
+
+        // Create the specific generic method with our entity type
+        var methodInfo = genericMethodDefinition.MakeGenericMethod(entityType);
+
+        // Invoke it with the parameters and properly converted parameters
+        dynamic task = methodInfo.Invoke(this, new object[] { query, dapperParameters });
+        
+        // Await the task to get the result
+        var typedResult = await task;
+        
+        // Convert the result to a list of objects
+        List<object> result = new List<object>();
+        foreach (var item in typedResult)
+        {
+            result.Add(item);
+        }
+        
+        return result;
+    }
+
+private object ConvertToDapperParameters(object parameters)
+{
+    // If it's null, return null
+    if (parameters == null) return null;
+    
+    // If it's a JsonElement, convert it to a proper object
+    if (parameters is System.Text.Json.JsonElement jsonElement)
+    {
+        if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Object)
+        {
+            // Create a dictionary to hold the parameters
+            var dict = new Dictionary<string, object>();
+            
+            // Get all properties from the JsonElement
+            foreach (var property in jsonElement.EnumerateObject())
+            {
+                // Convert each JsonElement value to an appropriate .NET type
+                dict[property.Name] = ConvertJsonElementValue(property.Value);
+            }
+            
+            return dict;
+        }
+    }
+    
+    // If it's already a compatible type, return it as is
+    return parameters;
+}
+
+private object ConvertJsonElementValue(System.Text.Json.JsonElement element)
+{
+    switch (element.ValueKind)
+    {
+        case System.Text.Json.JsonValueKind.String:
+            return element.GetString();
+        case System.Text.Json.JsonValueKind.Number:
+            if (element.TryGetInt32(out int intValue))
+                return intValue;
+            if (element.TryGetInt64(out long longValue))
+                return longValue;
+            if (element.TryGetDouble(out double doubleValue))
+                return doubleValue;
+            return element.GetRawText();
+        case System.Text.Json.JsonValueKind.True:
+            return true;
+        case System.Text.Json.JsonValueKind.False:
+            return false;
+        case System.Text.Json.JsonValueKind.Null:
+            return null;
+        default:
+            return element.GetRawText();
+    }
+}
 
     public async Task<T> QueryFirstOrDefaultAsync<T>(string query, object parameters = null)
     {

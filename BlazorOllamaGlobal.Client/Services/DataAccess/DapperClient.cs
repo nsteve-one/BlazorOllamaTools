@@ -24,16 +24,21 @@ public class DapperClient
         var request = new QueryRequest
         {
             Query = query,
-            Parameters = parameters
+            Parameters = parameters,
+            EntityTypeName = typeof(T).AssemblyQualifiedName
         };
 
         var response = await _httpClient.PostAsJsonAsync("api/dapper/query", request);
-        
+    
         if (response.IsSuccessStatusCode)
         {
-            return await response.Content.ReadFromJsonAsync<List<T>>(_jsonOptions);
-        }
+            // Get the raw JSON content
+            var json = await response.Content.ReadAsStringAsync();
         
+            // Deserialize manually to ensure proper typing
+            return JsonSerializer.Deserialize<List<T>>(json, _jsonOptions);
+        }
+    
         throw new HttpRequestException($"Query failed: {response.ReasonPhrase}");
     }
 

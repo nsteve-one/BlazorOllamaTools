@@ -28,4 +28,33 @@ public class NoteService
         }
 
     }
+
+    public async Task<List<Note>> QueryNotes(string searchTerm)
+    {
+        try
+        {
+            return await _dapperClient.QueryAsync<Note>(
+                "SELECT * FROM Note WHERE LOWER(Title) LIKE @searchTerm", 
+                new { searchTerm = $"%{searchTerm.Trim().ToLower()}%" });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    public async Task<List<Note>> GetAllNotes()
+    {
+        try
+        {
+            return await _dapperClient.QueryAsync<Note>(
+                "SELECT * FROM Note;");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
 }

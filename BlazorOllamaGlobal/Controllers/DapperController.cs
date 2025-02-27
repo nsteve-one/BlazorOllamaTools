@@ -21,12 +21,43 @@ public class DapperController : ControllerBase
     }
 
     [HttpPost("query")]
-    public async Task<ActionResult<List<T>>> QueryAsync<T>([FromBody] QueryRequest request)
+    public async Task<ActionResult> QueryAsync([FromBody] QueryRequest request)
     {
         try
         {
-            var result = await _dapperService.QueryAsync<T>(request.Query, request.Parameters);
-            return Ok(result);
+            if (!string.IsNullOrEmpty(request.EntityTypeName))
+            {
+                Type entityType = Type.GetType(request.EntityTypeName) ?? 
+                                  AppDomain.CurrentDomain.GetAssemblies()
+                                      .SelectMany(a => a.GetTypes())
+                                      .FirstOrDefault(t => t.FullName == request.EntityTypeName || 
+                                                           t.Name == request.EntityTypeName);
+            
+                if (entityType != null)
+                {
+                    // Use non-generic method internally
+                    var resultObjects = await _dapperService.QueryAsyncDynamic(request.Query, request.Parameters, entityType);
+                
+                    // Instead of returning the objects directly, serialize them to JSON manually
+                    // This preserves the proper type information during serialization
+                    var jsonOptions = new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                        WriteIndented = true
+                    };
+                
+                    // Serialize and then re-parse to ensure we're sending valid JSON with proper type info
+                    string jsonString = JsonSerializer.Serialize(resultObjects, jsonOptions);
+                
+                    // Return raw JSON instead of object collection
+                    return Content(jsonString, "application/json");
+                }
+                return BadRequest("Entity type not found");
+            }
+            else
+            {
+                return BadRequest("Entity type name is required");
+            }
         }
         catch (Exception ex)
         {
@@ -34,8 +65,6 @@ public class DapperController : ControllerBase
             return StatusCode(500, "An error occurred while executing the query");
         }
     }
-
-
 
     [HttpPost("upsert")]
     public async Task<ActionResult<object>> UpsertAsync([FromBody] UpsertRequest request)

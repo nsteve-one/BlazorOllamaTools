@@ -52,6 +52,19 @@ public class ToolService
                         toolResult = "No note found to save.";
                     }
                     break;
+                case "SearchNotes":
+                    var titleQuery = args["title"]?.GetValue<string>() ?? "";
+                    var notesResult = await noteService.QueryNotes(titleQuery);
+                    if (notesResult is not null)
+                    {
+                        if (notesResult.Count == 1)
+                        {
+                            toolResult = $"Single note found named {notesResult[0].Title} and displayed successfully.";
+                            tileService.RequestTile(new NoteTileModel(notesResult[0]));
+                        }
+                    }
+                    
+                    break;
                 case "EditCurrentNote":
                     var noteTile = tileService.ActiveTiles.FirstOrDefault(x =>
                         x.IsExiting is not true && x is NoteTileModel) as NoteTileModel;
@@ -125,7 +138,27 @@ public class ToolService
                         }
                     }
                 }
-            }
+            },
+            new ToolDefinition
+            {
+                Function = new ToolFunction
+                {
+                    Name = "SearchNotes",
+                    Description = "Returns a list of notes from the server",
+                    Parameters = new
+                    {
+                        type = "object",
+                        properties = new
+                        {
+                            Title = new
+                            {
+                                type = "string",
+                                description = "A search term for the title of the saved notes.",
+                            }
+                        }
+                    }
+                }
+            },
         };
         
         var activeTileTools = tileService.ActiveTiles.Where(x => x.IsExiting is not true).SelectMany(t => t.GetTileTools()).ToList();

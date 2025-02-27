@@ -10,6 +10,7 @@ public interface IDapperService
     public T QueryFirstOrDefault<T>(string query, object parameters = null);
     public T QueryFirstOrDefault<T>(SqlConnection Connection, string query, object parameters = null, SqlTransaction transaction = null);
     public Task<List<T>> QueryAsync<T>(string query, object parameters = null);
+    public Task<IEnumerable<object>> QueryAsyncDynamic(string query, object parameters, Type entityType);
     public Task<List<T>> QueryAsync<T>(SqlConnection Connection, string query, object parameters = null, SqlTransaction transaction = null);
     public Task<T> QueryFirstOrDefaultAsync<T>(string query, object parameters = null);
     public Task<int> ExecuteScalarAsync(string query, object parameters = null);
