@@ -62,6 +62,18 @@ public class ToolService
                             toolResult = $"Single note found named {notesResult[0].Title} and displayed successfully.";
                             tileService.RequestTile(new NoteTileModel(notesResult[0]));
                         }
+                        else if (notesResult.Count > 1)
+                        {
+                            toolResult = $"{notesResult.Count} notes found. Please refine your search parameters.";
+                        }
+                        else
+                        {
+                            toolResult = "No note found. Please refine your search parameters.";
+                        }
+                    }
+                    else
+                    {
+                        toolResult = "No note found. Please refine your search parameters.";
                     }
                     
                     break;
