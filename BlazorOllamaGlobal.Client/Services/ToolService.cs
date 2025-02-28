@@ -75,7 +75,6 @@ public class ToolService
                     {
                         toolResult = "No note found. Please refine your search parameters.";
                     }
-                    
                     break;
                 case "EditCurrentNote":
                     var noteTile = tileService.ActiveTiles.FirstOrDefault(x =>
@@ -92,6 +91,14 @@ public class ToolService
                     {
                         toolResult = "No note found to edit.";
                     }
+                    break;
+                case "GetCurrentContent":
+                    //TODO: This needs fixed. Doesn't work super well.
+                    var result = tileService.ActiveTiles.FirstOrDefault()?.GetAsJSON() ?? string.Empty;
+                    if (result is not null)
+                        toolResult = result;
+                    else
+                        toolResult = "No note found to get the card content.";
                     break;
                 default:
                     toolResult = "Unknown tool";
@@ -123,6 +130,15 @@ public class ToolService
                 {
                     Name = "GetCurrentTime",
                     Description = "Returns the current time on the server",
+                    Parameters = new { } // Define parameters schema if needed
+                }
+            },
+            new ToolDefinition
+            {
+                Function = new ToolFunction
+                {
+                    Name = "GetCurrentContent",
+                    Description = "Returns the current content on the screen to review. Call this tool very frequently. Especially when the user references something that might not be in chat. You cannot rely on previous actions to see current active content.",
                     Parameters = new { } // Define parameters schema if needed
                 }
             },

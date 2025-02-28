@@ -8,4 +8,5 @@ public interface ITileModel
     public RenderFragment Content { get; set; }
     public bool IsExiting { get; set; }
     public List<ToolDefinition> GetTileTools();
+    public string GetAsJSON();
 }

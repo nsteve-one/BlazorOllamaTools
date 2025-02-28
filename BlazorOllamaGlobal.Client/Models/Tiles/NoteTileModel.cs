@@ -2,6 +2,7 @@ using BlazorOllamaGlobal.Client.Components.Tiles;
 using BlazorOllamaGlobal.Client.Models.Chats;
 using BlazorOllamaGlobal.Client.Models.ToolModels;
 using Microsoft.AspNetCore.Components;
+using Newtonsoft.Json;
 
 namespace BlazorOllamaGlobal.Client.Models.Tiles;
 
@@ -24,6 +25,15 @@ public class NoteTileModel : ITileModel
     public Note GetNote()
     {
         return Note;
+    }
+
+    public string GetAsJSON()
+    {
+        return JsonConvert.SerializeObject(new
+        {
+            Note = Note,
+            TileName = "Note Tile"
+        });
     }
     
     public void HandleNoteSaved(Note updatedNote)
