@@ -43,12 +43,24 @@ public class ChatManagerService
             {
                 request.Messages = new List<ChatMessage>
                 {
+                    new ChatMessage { Role = "system", Content = "You are a pleasant, helpful, AI assistant prepared to help you with any questions the user may have. Please feel free to use tools to help the user with their questions when appropriate. Every time you call a tool, the user's screen will populate with info regarding the surrounding tool. ONLY use the tools provided. For reference, here is an example of a properly formatted tool call:   \"message\" : {\n    \"role\" : \"assistant\",\n    \"content\" : \"\",\n    \"tool_calls\" : [ {\n      \"function\" : {\n        \"name\" : \"CreateNewNote\",\n        \"arguments\" : {\n          \"content\" : \"<p>hello world</p>\",\n          \"title\" : \"hello world\"\n        }\n      }\n    } ]\n  },"},
                     new ChatMessage { Role = "user", Content = message }
                 };
                 ChatMessages.Add(chatID, request.Messages);
             }
-        
+
+            var tileHasContent = tileService.ActiveTiles.FirstOrDefault(x => x.IsExiting is not true) is not null;
+            if (tileHasContent)
+            {
+                ChatMessages[chatID].Add(new ChatMessage { Role = "system", Content = $"A JSON representation of the content on the current screen: {tileService.ActiveTiles.FirstOrDefault(x =>
+                    x.IsExiting is not true).GetAsJSON()}" });
+            }
+            
             var chatResponse = await ollamaService.ChatAsync(request);
+
+            if (tileHasContent)
+                ChatMessages[chatID].RemoveAt(ChatMessages[chatID].Count - 1);
+            
     
             // Process tool calls if they exist.
             if (chatResponse.ResponseMessage.ToolCalls != null && chatResponse.ResponseMessage.ToolCalls.Any())

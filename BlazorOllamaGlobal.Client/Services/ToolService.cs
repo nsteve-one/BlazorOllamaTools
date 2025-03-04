@@ -59,7 +59,7 @@ public class ToolService
                     {
                         if (notesResult.Count == 1)
                         {
-                            toolResult = $"Single note found named {notesResult[0].Title} and displayed successfully.";
+                            toolResult = $"Single note found named {notesResult[0].Title} and is displayed to the user successfully.";
                             tileService.RequestTile(new NoteTileModel(notesResult[0]));
                         }
                         else if (notesResult.Count > 1)
@@ -91,14 +91,6 @@ public class ToolService
                     {
                         toolResult = "No note found to edit.";
                     }
-                    break;
-                case "GetCurrentContent":
-                    //TODO: This needs fixed. Doesn't work super well.
-                    var result = tileService.ActiveTiles.FirstOrDefault()?.GetAsJSON() ?? string.Empty;
-                    if (result is not null)
-                        toolResult = result;
-                    else
-                        toolResult = "No note found to get the card content.";
                     break;
                 default:
                     toolResult = "Unknown tool";
@@ -133,15 +125,6 @@ public class ToolService
                     Parameters = new { } // Define parameters schema if needed
                 }
             },
-            new ToolDefinition
-            {
-                Function = new ToolFunction
-                {
-                    Name = "GetCurrentContent",
-                    Description = "Returns the current content on the screen to review. Call this tool very frequently. Especially when the user references something that might not be in chat. You cannot rely on previous actions to see current active content.",
-                    Parameters = new { } // Define parameters schema if needed
-                }
-            },
             new ToolDefinition()
             {
                 Function = new ToolFunction()
@@ -172,7 +155,7 @@ public class ToolService
                 Function = new ToolFunction
                 {
                     Name = "SearchNotes",
-                    Description = "Returns a list of notes from the server",
+                    Description = "Returns a list of saved notes from the server and displays the result to the user.",
                     Parameters = new
                     {
                         type = "object",
