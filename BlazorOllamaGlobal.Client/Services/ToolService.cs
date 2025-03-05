@@ -26,8 +26,8 @@ public class ToolService
             switch (toolName)
             {
                 case "GetCurrentTime":
-                    toolResult = GetCurrentTime();
-                    tileService.RequestTile(new TimeTileModel(toolResult));
+                    toolResult = "The local time is " + GetCurrentTime();
+                    tileService.RequestTile(new TimeTileModel(GetCurrentTime()));
                     break;
                 case "CreateNewNote":
                     toolResult = "success";
@@ -98,7 +98,7 @@ public class ToolService
             }
             
             
-            return $"Tool {toolName} was called. Tool result: {toolResult}.";
+            return $"Tool {toolName} was successfully called. Tool result: {toolResult}.";
         }
         catch (Exception e)
         {
@@ -155,7 +155,7 @@ public class ToolService
                 Function = new ToolFunction
                 {
                     Name = "SearchNotes",
-                    Description = "Returns a list of saved notes from the server and displays the result to the user.",
+                    Description = "Searches or looks for notes and returns a list of saved notes from the server and displays the result to the user.",
                     Parameters = new
                     {
                         type = "object",

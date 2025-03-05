@@ -1,7 +1,10 @@
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using BlazorOllamaGlobal.Client.Models.Chats;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace BlazorOllamaGlobal.Client.Services;
 public class OllamaService
@@ -21,9 +24,14 @@ public class OllamaService
     {
         // Force non-streaming mode so we receive a complete JSON object.
         request.Stream = false;
-        
+        var settings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        };
+        var content = JsonConvert.SerializeObject(request, settings);
+        var stringContent = new StringContent(content, Encoding.UTF8, "application/json");
         // Post the request to the /api/chat endpoint.
-        var response = await _httpClient.PostAsJsonAsync("/api/chat", request);
+        var response = await _httpClient.PostAsync("/api/chat", stringContent);
         response.EnsureSuccessStatusCode();
         
         // Read the raw JSON response and log it.

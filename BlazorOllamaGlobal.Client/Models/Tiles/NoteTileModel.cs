@@ -52,7 +52,7 @@ public class NoteTileModel : ITileModel
                 Function = new ToolFunction
                 {
                     Name = "SaveNote",
-                    Description = "Saves the current note for the user.",
+                    Description = "Saves the current note for the user. This tool must be called every time the user wants to save their note.",
                     Parameters = new { } // Define parameters schema if needed
                 }
             },
