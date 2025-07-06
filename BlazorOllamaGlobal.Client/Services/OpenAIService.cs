@@ -40,6 +40,38 @@ public class OpenAIService
         var choice = doc["choices"]![0]!.AsObject();
         var message = choice["message"]!.AsObject();
 
+        List<ToolCall>? parsedToolCalls = null;
+        if (message["tool_calls"] is JsonArray callsArray)
+        {
+            parsedToolCalls = new List<ToolCall>();
+            foreach (var callNode in callsArray)
+            {
+                var funcObj = callNode?["function"]?.AsObject();
+                if (funcObj is null)
+                    continue;
+
+                var rawArgs = funcObj["arguments"]?.GetValue<string>() ?? "{}";
+                JsonObject args;
+                try
+                {
+                    args = JsonNode.Parse(rawArgs)?.AsObject() ?? new JsonObject();
+                }
+                catch
+                {
+                    args = new JsonObject();
+                }
+
+                parsedToolCalls.Add(new ToolCall
+                {
+                    Function = new ToolFunction
+                    {
+                        Name = funcObj["name"]!.GetValue<string>(),
+                        Arguments = args
+                    }
+                });
+            }
+        }
+
         var chatResponse = new ChatResponse
         {
             Model = doc["model"]!.GetValue<string>(),
@@ -48,9 +80,7 @@ public class OpenAIService
             {
                 Role = message["role"]!.GetValue<string>(),
                 Content = message["content"]?.GetValue<string>() ?? string.Empty,
-                ToolCalls = message["tool_calls"] != null
-                    ? message["tool_calls"]!.Deserialize<List<ToolCall>>()
-                    : null
+                ToolCalls = parsedToolCalls
             },
             Done = true,
             DoneReason = choice["finish_reason"]?.GetValue<string>() ?? string.Empty
