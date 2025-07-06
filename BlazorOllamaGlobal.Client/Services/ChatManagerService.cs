@@ -7,14 +7,16 @@ namespace BlazorOllamaGlobal.Client.Services;
 public class ChatManagerService
 {
     private readonly OllamaService ollamaService;
+    private readonly OpenAIService openAIService;
     private readonly ToolService toolService;
     private readonly TileService tileService;
 
-    public ChatManagerService(OllamaService ollamaService, ToolService toolService, TileService tileService)
+    public ChatManagerService(OllamaService ollamaService, ToolService toolService, TileService tileService, OpenAIService openAIService)
     {
         this.ollamaService = ollamaService;
         this.toolService = toolService;
         this.tileService = tileService;
+        this.openAIService = openAIService;
     }
 
     private Dictionary<string, List<ChatMessage>> ChatMessages { get; set; } = new();
@@ -81,7 +83,9 @@ public class ChatManagerService
                     x.IsExiting is not true).GetAsJSON()}" });
             }
             
-            var chatResponse = await ollamaService.ChatAsync(request);
+            var chatResponse = model.Contains("gpt")
+                ? await openAIService.ChatAsync(request)
+                : await ollamaService.ChatAsync(request);
 
             if (tileHasContent)
                 ChatMessages[chatID].RemoveAt(ChatMessages[chatID].Count - 1);
