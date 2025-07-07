@@ -22,7 +22,7 @@ public class ChatManagerService
 
     private string CurrentChatID { get; set; }
 
-    public async Task<string> SendChat(string chatID, string message, string model = "gpt-4o")
+    public async Task<string> SendChat(string chatID, string message, string model = "gpt-4.1")
     {
         try
         {
@@ -45,32 +45,7 @@ public class ChatManagerService
             {
                 request.Messages = new List<ChatMessage>
                 {
-                    new ChatMessage { Role = "system", Content = @"You are a pleasant, helpful, AI assistant prepared to help with any questions. 
-                                                                        IMPORTANT FORMATTING INSTRUCTIONS:
-                                                                        1. When you need to use a tool, ALWAYS use the tool_calls field, NEVER include tool calls in the content field.
-                                                                        2. NEVER use formats like <tool_call> or similar HTML-like tags.
-                                                                        3. Leave the content field empty when making tool calls.
-                                                                        4. Wait for tool results before continuing.
-
-                                                                        CORRECT FORMAT EXAMPLE:
-                                                                        {
-                                                                          ""role"": ""assistant"",
-                                                                          ""content"": """",
-                                                                          ""tool_calls"": [ {
-                                                                            ""function"": {
-                                                                              ""name"": ""CreateNewNote"",
-                                                                              ""arguments"": {
-                                                                                ""content"": ""<p>hello world</p>"",
-                                                                                ""title"": ""hello world""
-                                                                              }
-                                                                            }
-                                                                          } ]
-                                                                        }
-
-                                                                        INCORRECT FORMATS (NEVER DO THESE):
-                                                                        - DO NOT put tool calls in content: ""content"": ""I'll create a note using CreateNewNote...""
-                                                                        - DO NOT use HTML tags: ""content"": ""<tool_call>CreateNewNote...</tool_call>""
-                                                                        - DO NOT format arguments incorrectly: ""arguments"": ""title=hello, content=world"""},
+                    new ChatMessage { Role = "system", Content = @"You are a pleasant, helpful, AI assistant prepared to help with any questions."},
                     new ChatMessage { Role = "user", Content = message }
                 };
                 ChatMessages.Add(chatID, request.Messages);

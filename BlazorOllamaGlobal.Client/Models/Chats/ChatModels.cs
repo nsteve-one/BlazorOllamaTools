@@ -38,6 +38,73 @@ public class ChatRequest
     [JsonPropertyName("stream")]
     [JsonProperty("stream")]
     public bool Stream { get; set; } = false;
+    
+    /// <summary>
+    /// Additional options for generation.
+    /// </summary>
+    public ChatOptions Options { get; set; } = new ChatOptions();
+}
+
+public class ChatOptions
+{
+    /*[JsonPropertyName("num_keep")]
+    public int NumKeep { get; set; } = 5;
+
+    [JsonPropertyName("seed")]
+    public int Seed { get; set; } = 42;
+
+    [JsonPropertyName("num_predict")]
+    public int NumPredict { get; set; } = 100;
+
+    [JsonPropertyName("top_k")]
+    public int TopK { get; set; } = 20;
+
+    [JsonPropertyName("top_p")]
+    public double TopP { get; set; } = 0.9;
+
+    [JsonPropertyName("min_p")]
+    public double MinP { get; set; } = 0.0;
+
+    [JsonPropertyName("typical_p")]
+    public double TypicalP { get; set; } = 0.7;
+
+    [JsonPropertyName("repeat_last_n")]
+    public int RepeatLastN { get; set; } = 33;
+
+    [JsonPropertyName("temperature")]
+    public double Temperature { get; set; } = 0.8;
+
+    [JsonPropertyName("repeat_penalty")]
+    public double RepeatPenalty { get; set; } = 1.2;
+
+    [JsonPropertyName("presence_penalty")]
+    public double PresencePenalty { get; set; } = 1.5;
+
+    [JsonPropertyName("frequency_penalty")]
+    public double FrequencyPenalty { get; set; } = 1.0;
+
+    [JsonPropertyName("mirostat")]
+    public int Mirostat { get; set; } = 1;
+
+    [JsonPropertyName("mirostat_tau")]
+    public double MirostatTau { get; set; } = 0.8;
+
+    [JsonPropertyName("mirostat_eta")]
+    public double MirostatEta { get; set; } = 0.6;
+
+    [JsonPropertyName("penalize_newline")]
+    public bool PenalizeNewline { get; set; } = true;
+
+    [JsonPropertyName("stop")]
+    public List<string> Stop { get; set; } = new List<string> { "\n", "user:" };*/
+
+    // <-- This is the context size parameter
+    /*
+    [JsonPropertyName("num_ctx")]
+    public int NumCtx { get; set; } = 65536;
+    */
+
+    // ... Other options (num_batch, num_gpu, etc.) can be added similarly.
 }
 
 /// <summary>
