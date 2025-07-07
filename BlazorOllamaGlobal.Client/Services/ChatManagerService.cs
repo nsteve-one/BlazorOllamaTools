@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using BlazorOllamaGlobal.Client.Components;
 using BlazorOllamaGlobal.Client.Models.Chats;
 
@@ -6,14 +7,12 @@ namespace BlazorOllamaGlobal.Client.Services;
 
 public class ChatManagerService
 {
-    private readonly OllamaService ollamaService;
     private readonly OpenAIService openAIService;
     private readonly ToolService toolService;
     private readonly TileService tileService;
 
-    public ChatManagerService(OllamaService ollamaService, ToolService toolService, TileService tileService, OpenAIService openAIService)
+    public ChatManagerService(ToolService toolService, TileService tileService, OpenAIService openAIService)
     {
-        this.ollamaService = ollamaService;
         this.toolService = toolService;
         this.tileService = tileService;
         this.openAIService = openAIService;
@@ -23,7 +22,7 @@ public class ChatManagerService
 
     private string CurrentChatID { get; set; }
 
-    public async Task<string> SendChat(string chatID, string message, string model = "qwen2.5:32b")
+    public async Task<string> SendChat(string chatID, string message, string model = "gpt-4o")
     {
         try
         {
@@ -33,7 +32,8 @@ public class ChatManagerService
             {
                 Model = model,
                 Tools = await toolService.GetToolDefinitions(),
-                Stream = false 
+                ToolChoice = "auto",
+                Stream = false
             };
 
             if (ChatMessages.ContainsKey(chatID))
@@ -83,9 +83,7 @@ public class ChatManagerService
                     x.IsExiting is not true).GetAsJSON()}" });
             }
             
-            var chatResponse = model.Contains("gpt")
-                ? await openAIService.ChatAsync(request)
-                : await ollamaService.ChatAsync(request);
+            var chatResponse = await openAIService.ChatAsync(request);
 
             if (tileHasContent)
                 ChatMessages[chatID].RemoveAt(ChatMessages[chatID].Count - 1);
@@ -107,11 +105,20 @@ public class ChatManagerService
                 ChatMessages[chatID].Add(new ChatMessage { Role = "assistant", Content = "", ToolCalls = chatResponse?.ResponseMessage?.ToolCalls });
                 foreach (var toolCall in chatResponse.ResponseMessage.ToolCalls)
                 {
-                    var toolResult = await toolService.RunToolCalled(toolCall.Function.Name, toolCall.Function.Arguments);
+                    JsonObject args;
+                    try
+                    {
+                        args = JsonNode.Parse(toolCall.Function.Arguments)?.AsObject() ?? new JsonObject();
+                    }
+                    catch
+                    {
+                        args = new JsonObject();
+                    }
+                    var toolResult = await toolService.RunToolCalled(toolCall.Function.Name, args);
                     ChatMessages[chatID].Add(new ChatMessage { Role = "system", Content = toolResult });
                     ChatMessages[chatID].Add(new ChatMessage { Role = "system", Content = "Assistant, ALWAYS tell the user if the tool was successful and it's result. Try to keep it less than 100 words. ALWAYS at least tell the user you finished using the tool. The user can see the result. Your next response should NOT be a tool and do NOT mention tool use." });
                     request.Messages = ChatMessages[chatID];
-                    var chatAfterTool = await ollamaService.ChatAsync(request);
+                    var chatAfterTool = await openAIService.ChatAsync(request);
                     ChatMessages[chatID].Add(new ChatMessage { Role = "assistant", Content = chatAfterTool.ResponseMessage.Content });
                     return chatAfterTool.ResponseMessage.Content;
                     

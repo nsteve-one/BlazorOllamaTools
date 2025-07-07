@@ -6,12 +6,6 @@ using Radzen;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-builder.Services.AddScoped<OllamaService>(sp =>
-{
-    // BaseAddress should point to your Ollama instance.
-    var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:11434") };
-    return new OllamaService(httpClient);
-});
 builder.Services.AddScoped<OpenAIService>(sp =>
 {
     var config = sp.GetRequiredService<IConfiguration>();

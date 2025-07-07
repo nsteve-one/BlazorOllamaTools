@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace BlazorOllamaGlobal.Client.Models.Chats;
 
 /// <summary>
-/// Represents the request to the Ollama chat endpoint.
+/// Represents the request payload for the OpenAI chat completions API.
 /// </summary>
 public class ChatRequest
 {
@@ -27,6 +27,10 @@ public class ChatRequest
     [JsonPropertyName("tools")]
     [JsonProperty("tools")]
     public List<ToolDefinition>? Tools { get; set; }
+
+    [JsonPropertyName("tool_choice")]
+    [JsonProperty("tool_choice")]
+    public string? ToolChoice { get; set; }
     
     /// <summary>
     /// Whether to use streaming mode. (For debugging, we set this to false.)
@@ -47,7 +51,7 @@ public class ChatMessage
 
     [JsonPropertyName("content")]
     [JsonProperty("content")]
-    public string Content { get; set; }
+    public string? Content { get; set; }
 
     [JsonPropertyName("tool_calls")]
     [JsonProperty("tool_calls")]
@@ -85,10 +89,17 @@ public class ToolFunction
     [JsonPropertyName("parameters")]
     [JsonProperty("parameters")]
     public object? Parameters { get; set; }
-    
+}
+
+public class ToolCallFunction
+{
+    [JsonPropertyName("name")]
+    [JsonProperty("name")]
+    public string Name { get; set; }
+
     [JsonPropertyName("arguments")]
     [JsonProperty("arguments")]
-    public JsonObject Arguments { get; set; } = new JsonObject();
+    public string Arguments { get; set; }
 }
 
 /// <summary>
@@ -97,9 +108,17 @@ public class ToolFunction
 /// </summary>
 public class ToolCall
 {
+    [JsonPropertyName("id")]
+    [JsonProperty("id")]
+    public string Id { get; set; }
+
+    [JsonPropertyName("type")]
+    [JsonProperty("type")]
+    public string Type { get; set; }
+
     [JsonPropertyName("function")]
     [JsonProperty("function")]
-    public ToolFunction Function { get; set; }
+    public ToolCallFunction Function { get; set; }
 }
 
 /// <summary>
@@ -114,8 +133,8 @@ public class ChatResponseMessage
 
     [JsonPropertyName("content")]
     [JsonProperty("content")]
-    public string Content { get; set; }
-    
+    public string? Content { get; set; }
+
     /// <summary>
     /// Optional list of tool calls issued by the model.
     /// </summary>
@@ -125,57 +144,69 @@ public class ChatResponseMessage
 }
 
 /// <summary>
-/// Represents the complete response from the Ollama API chat endpoint.
+/// Represents the complete response from the OpenAI chat completions API.
 /// </summary>
 public class ChatResponse
 {
+    [JsonPropertyName("id")]
+    [JsonProperty("id")]
+    public string Id { get; set; }
+
+    [JsonPropertyName("object")]
+    [JsonProperty("object")]
+    public string Object { get; set; }
+
+    [JsonPropertyName("created")]
+    [JsonProperty("created")]
+    public long Created { get; set; }
+
     [JsonPropertyName("model")]
     [JsonProperty("model")]
     public string Model { get; set; }
-    
-    [JsonPropertyName("created_at")]
-    [JsonProperty("created_at")]
-    public DateTime CreatedAt { get; set; }
-    
-    /// <summary>
-    /// The primary message object returned by the model, which includes tool_calls if any.
-    /// </summary>
+
+    [JsonPropertyName("choices")]
+    [JsonProperty("choices")]
+    public List<ChatChoice> Choices { get; set; } = new();
+
+    [JsonPropertyName("usage")]
+    [JsonProperty("usage")]
+    public Usage? Usage { get; set; }
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public ChatResponseMessage ResponseMessage => Choices.FirstOrDefault()?.Message;
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string FinishReason => Choices.FirstOrDefault()?.FinishReason ?? string.Empty;
+}
+
+public class ChatChoice
+{
+    [JsonPropertyName("index")]
+    [JsonProperty("index")]
+    public int Index { get; set; }
+
     [JsonPropertyName("message")]
     [JsonProperty("message")]
-    public ChatResponseMessage ResponseMessage { get; set; }
-    
-    [JsonPropertyName("done")]
-    [JsonProperty("done")]
-    public bool Done { get; set; }
-    
-    [JsonPropertyName("done_reason")]
-    [JsonProperty("done_reason")]
-    public string DoneReason { get; set; }
-    
-    // Additional fields from the response:
-    [JsonPropertyName("total_duration")]
-    [JsonProperty("total_duration")]
-    public long TotalDuration { get; set; }
-    
-    [JsonPropertyName("load_duration")]
-    [JsonProperty("load_duration")]
-    public long LoadDuration { get; set; }
-    
-    [JsonPropertyName("prompt_eval_count")]
-    [JsonProperty("prompt_eval_count")]
-    public int PromptEvalCount { get; set; }
-    
-    [JsonPropertyName("prompt_eval_duration")]
-    [JsonProperty("prompt_eval_duration")]
-    public long PromptEvalDuration { get; set; }
-    
-    [JsonPropertyName("eval_count")]
-    [JsonProperty("eval_count")]
-    public int EvalCount { get; set; }
-    
-    [JsonPropertyName("eval_duration")]
-    [JsonProperty("eval_duration")]
-    public long EvalDuration { get; set; }
+    public ChatResponseMessage Message { get; set; }
+
+    [JsonPropertyName("finish_reason")]
+    [JsonProperty("finish_reason")]
+    public string FinishReason { get; set; }
+}
+
+public class Usage
+{
+    [JsonPropertyName("prompt_tokens")]
+    [JsonProperty("prompt_tokens")]
+    public int PromptTokens { get; set; }
+
+    [JsonPropertyName("completion_tokens")]
+    [JsonProperty("completion_tokens")]
+    public int CompletionTokens { get; set; }
+
+    [JsonPropertyName("total_tokens")]
+    [JsonProperty("total_tokens")]
+    public int TotalTokens { get; set; }
 }
 
 /// <summary>
