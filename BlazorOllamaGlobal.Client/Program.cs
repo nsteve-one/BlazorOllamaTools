@@ -12,18 +12,6 @@ builder.Services.AddScoped<OllamaService>(sp =>
     var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:11434") };
     return new OllamaService(httpClient);
 });
-builder.Services.AddScoped<OpenAIService>(sp =>
-{
-    var config = sp.GetRequiredService<IConfiguration>();
-    var apiKey = config["OpenAI:ApiKey"] ?? string.Empty;
-    var httpClient = new HttpClient { BaseAddress = new Uri("https://api.openai.com/") };
-    if (!string.IsNullOrEmpty(apiKey))
-    {
-        httpClient.DefaultRequestHeaders.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
-    }
-    return new OpenAIService(httpClient);
-});
 builder.Services.AddScoped(sp => 
     new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddScoped<ChatManagerService>();
